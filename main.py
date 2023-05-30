@@ -25,10 +25,18 @@ playerX_change = 0
 
 # Enemy
 enemyImg = pygame.image.load('ufo.png')
-enemyX = random.randint(0,800)
-enemyY = random.randint(50,150)
+enemyX = random.randint(0, 800)
+enemyY = random.randint(50, 150)
 enemyX_change = 0.3
 enemyY_change = 40
+
+# Bullet
+bulletImg = pygame.image.load('bullet.png')
+bulletX = 0
+bulletY = 480
+bulletX_change = 0
+bulletY_change = 0.2
+bullet_state = 'ready'
 
 
 
@@ -39,6 +47,11 @@ def player(x,y):
 def enemy(x,y):
     screen.blit(enemyImg,(x,y))
 
+def fire_bullet(x,y):
+    global bullet_state
+    bullet_state = 'fire'
+    screen.blit(bulletImg, (x+16, y+10))
+
 
 # Game Loop
 running = True
@@ -47,7 +60,7 @@ running = True
 while running:
 
     screen.fill((0, 100, 150))
-    screen.blit(background,(0,0))
+    screen.blit(background, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -58,6 +71,10 @@ while running:
                 playerX_change = -0.4
             if event.key == pygame.K_RIGHT:
                 playerX_change = 0.4
+            if event.key == pygame.K_SPACE:
+                if bullet_state is "ready":
+                    bulletX = playerX
+                    fire_bullet(bulletX, bulletY)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
@@ -78,6 +95,15 @@ while running:
         enemyX_change = -0.3
         enemyY += enemyY_change
 
-    player(playerX,playerY)
-    enemy(enemyX,enemyY)
+    # Bullet movement
+    if bulletY <=0:
+        bulletY = 480
+        bullet_state = 'ready'
+    if bullet_state is 'fire':
+        fire_bullet(bulletX, bulletY)
+        bulletY -= bulletY_change
+
+    player(playerX, playerY)
+    enemy(enemyX, enemyY)
+
     pygame.display.update()
